@@ -18,24 +18,21 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Set up Flutter SDK
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.19.0'
-        channel: 'stable'
-        android: true
-
-    - name: Accept Android Licenses
-      run: yes | flutter doctor --android-licenses || true
+    - name: Install Flutter Natively
+      run: |
+        git clone https://github.com/flutter/flutter.git -b 3.19.0 --depth 1 _flutter
+        echo "$PWD/_flutter/bin" >> $GITHUB_PATH
+        flutter --version
+        flutter config --no-analytics
 
     - name: Install Dependencies
       run: flutter pub get
 
     - name: Build APK
-      run: flutter build apk --release
+      run: flutter build apk --debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/app-release.apk
+        name: app-debug
+        path: build/app/outputs/flutter-apk/app-debug.apk

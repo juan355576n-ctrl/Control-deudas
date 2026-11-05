@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Set up Java
       uses: actions/setup-java@v3
@@ -17,16 +18,16 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Install Flutter Manually
-      run: |
-        git clone https://github.com/flutter/flutter.git -b 3.19.0 --depth 1 _flutter
-        echo "$PWD/_flutter/bin" >> $GITHUB_PATH
-        flutter doctor
+    - name: Set up Flutter SDK
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
 
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Build Release APK
+    - name: Build APK
       run: flutter build apk --release
 
     - name: Upload APK Artifact

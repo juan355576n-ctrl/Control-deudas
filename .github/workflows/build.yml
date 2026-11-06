@@ -1,0 +1,45 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Install Flutter Natively
+      run: |
+        git clone https://github.com/flutter/flutter.git -b 3.19.0 --depth 1 _flutter
+        echo "$GITHUB_WORKSPACE/_flutter/bin" >> $GITHUB_PATH
+
+    - name: Verify Flutter Installation
+      run: |
+        export PATH="$GITHUB_WORKSPACE/_flutter/bin:$PATH"
+        flutter doctor -v
+
+    - name: Install Dependencies
+      run: |
+        export PATH="$GITHUB_WORKSPACE/_flutter/bin:$PATH"
+        flutter pub get
+
+    - name: Build Debug APK
+      run: |
+        export PATH="$GITHUB_WORKSPACE/_flutter/bin:$PATH"
+        flutter build apk --debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: build/app/outputs/flutter-apk/app-debug.apk
